@@ -12,7 +12,7 @@ export default function Header() {
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold text-red-600">
-          🍽️ Foodie's Delight
+          🍽️ EL-Dine
         </Link>
 
         {/* Desktop Nav */}
