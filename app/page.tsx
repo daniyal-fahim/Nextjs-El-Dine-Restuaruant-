@@ -1,6 +1,8 @@
 import Header from "@/components/Header";
 import Product from "@/components/Product";
-
+import Slider from "@/components/Slider";
+import ProductInfo from "@/components/Info";
+import Menu from "@/components/Menu"
 export default function Home() {
   return (
     <>
@@ -14,7 +16,34 @@ export default function Home() {
       <Product name="Lasagna" imageSrc="/images/menu-5.png" price="16.50" />
     </div>
 
+
+    {/* <ProductInfo name="Tiramisu" imageSrc="/images/menu-4.png" price="9.99" label="Seasonal" />
+  <ProductInfo
+  
+  name="Deluxe Cheeseburger"
+  imageSrc="/images/menu-4.png"
+  price="12.99"
+  label="Best Seller"
+  category="Fast Food"
+  rating={4.7}
+  reviews={320}
+  calories={850}
+  description="A mouth-watering cheeseburger loaded with fresh ingredients and a juicy beef patty."
+  ingredients={[
+    "Beef Patty",
+    "Cheddar Cheese",
+    "Lettuce",
+    "Tomato",
+    "Pickles",
+    "Onions",
+    "Burger Bun",
+    "Special Sauce"
+  ]}
+/> */}
+      <Menu />
+
       </main>
+      <Slider/>
     </>
   );
 }
