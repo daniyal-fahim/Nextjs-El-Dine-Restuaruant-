@@ -16,9 +16,9 @@ interface ProductProps {
 
 export default function ProductInfo({ name, imageSrc, price, label, ingredients, rating, calories, reviews, category, description, onClose }: ProductProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="pt-56 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="relative bg-white p-6 rounded-xl shadow-lg w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Close Button */}
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-xl">
           ✖

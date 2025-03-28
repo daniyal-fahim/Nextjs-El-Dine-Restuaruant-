@@ -5,18 +5,12 @@ interface ProductProps {
   imageSrc: string;
   price: string;
   label?: string;
+  onOpen: (productData: any) => void;
 }
 import ProductInfo from "./Info";
 import { useState } from "react";
-export default function Product({ name, imageSrc, price, label }: ProductProps) {
-const [isopen,setIsopen]=useState(false)
-  function handleopen(){
-    setIsopen(true);
-  }
-  function handleclose(){
-    setIsopen(false);
+export default function Product({ name, imageSrc, price, label,onOpen }: ProductProps) {
 
-  }
   return (
     <div className="relative flex flex-col items-center bg-white shadow-md rounded-xl overflow-hidden w-full max-w-[180px] sm:max-w-[220px] md:max-w-[240px] lg:max-w-[260px] transition-transform duration-300 hover:scale-105">
       
@@ -46,22 +40,17 @@ const [isopen,setIsopen]=useState(false)
         <button className="mt-2 sm:mt-3 px-4 sm:px-5 py-1 sm:py-2 bg-green-600 text-white text-xs sm:text-sm rounded-lg hover:bg-green-700 transition">
           Order Now
         </button>
-        <button onClick={handleopen} className="mt-2 sm:mt-3 px-4 sm:px-5 py-1 sm:py-2 bg-green-600 text-white text-xs sm:text-sm rounded-lg hover:bg-green-700 transition">
-          Know more
-        </button>
-        </div>
-
-        {isopen && <ProductInfo
-  name="Deluxe Cheeseburger"
-  imageSrc="/images/menu-4.png"
-  price="12.99"
-  label="Best Seller"
-  category="Fast Food"
-  rating={4.7}
-  reviews={320}
-  calories={850}
-  description="A mouth-watering cheeseburger loaded with fresh ingredients and a juicy beef patty."
-  ingredients={[
+        <button onClick={() => onOpen({
+  name: "Deluxe Cheeseburger",
+  imageSrc: "/images/menu-4.png",
+  price: "12.99",
+  label: "Best Seller",
+  category: "Fast Food",
+  rating: 4.7,
+  reviews: 320,
+  calories: 850,
+  description: "A mouth-watering cheeseburger loaded with fresh ingredients and a juicy beef patty.",
+  ingredients: [
     "Beef Patty",
     "Cheddar Cheese",
     "Lettuce",
@@ -70,10 +59,13 @@ const [isopen,setIsopen]=useState(false)
     "Onions",
     "Burger Bun",
     "Special Sauce"
-  ]}
-  onClose={handleclose}
-/>
-}
+  ]
+})}   className="mt-2 sm:mt-3 px-4 sm:px-5 py-1 sm:py-2 bg-green-600 text-white text-xs sm:text-sm rounded-lg hover:bg-green-700 transition">
+          Know more
+        </button>
+        </div>
+
+      
       </div>
     </div>
   );

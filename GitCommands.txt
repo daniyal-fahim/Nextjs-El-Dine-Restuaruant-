@@ -1,7 +1,7 @@
 git status
 git add .
 git status
-git commit -m " MENU AND SLIDER DIV COMPLETED A good look "
+git commit -m " JUST SOLE THE INFO PAGE ISSUE"
 git status
 git push -u origin main
 
