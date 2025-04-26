@@ -1,0 +1,13 @@
+git status
+git add .
+git status
+git commit -m " ADDED  about us page and login signup page"
+git status
+git push -u origin main
+
+
+git remote set-url origin 
+
+git pull origin main
+
+
