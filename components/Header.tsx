@@ -38,13 +38,13 @@ export default function Header() {
             ) : (
               <div className="flex gap-4 items-center">
                 <Link 
-                  href="/Login" 
+                  href="/login" 
                   className="px-4 py-2 text-gray-700 hover:text-red-500 transition"
                 >
                   Login
                 </Link>
                 <Link 
-                  href="/Login" 
+                  href="/login" 
                   className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                 >
                   Sign Up
@@ -110,7 +110,7 @@ export default function Header() {
                 Login
               </Link>
               <Link 
-                href="/signup" 
+                href="/login" 
                 className="w-full text-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                 onClick={() => setIsOpen(false)}
               >

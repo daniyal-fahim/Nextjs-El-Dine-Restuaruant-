@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function About() {
   return (
-    <div className="bg-gray-50 font-sans">
+    <div className="bg-gray-50 font-sans pt-28">
       <header className="bg-green-600 text-white py-6 text-center">
         <h1 className="text-4xl font-bold">Welcome to Eldine</h1>
         <p className="text-lg mt-2">The best dining experience, just for you!</p>

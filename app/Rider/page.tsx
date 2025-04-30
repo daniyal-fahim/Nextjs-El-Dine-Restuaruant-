@@ -4,7 +4,6 @@ import ProductInfo from "@/components/Info";
 // import Cart from "@/components/Cart";
 import React, { useState } from "react";
 import { CheckCircleIcon, TruckIcon } from "@heroicons/react/24/outline";
-
 // Define Product type
 type Product = {
     id: number;
@@ -96,6 +95,9 @@ export default function Rider() {
             )}
 
             <main className="pt-20 p-6 max-w-6xl mx-auto">
+                <div className="flex justify-center p-5 bg-red-600 caret-amber-300">
+                    <a href='/AddProduct'>Add ProducT</a>
+                </div>
                 <div className="flex items-center gap-3 mb-8">
                     <TruckIcon className="h-8 w-8 text-red-600" />
                     <h1 className="text-3xl font-bold text-green-900">Rider Dashboard</h1>
