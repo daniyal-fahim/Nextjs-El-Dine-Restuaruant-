@@ -38,13 +38,13 @@ export default function Header() {
             ) : (
               <div className="flex gap-4 items-center">
                 <Link 
-                  href="/login" 
+                  href="/Login" 
                   className="px-4 py-2 text-gray-700 hover:text-red-500 transition"
                 >
                   Login
                 </Link>
                 <Link 
-                  href="/login" 
+                  href="/Login" 
                   className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                 >
                   Sign Up
