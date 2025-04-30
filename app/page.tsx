@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import Slider from "@/components/Slider";
+//import Slider from "@/components/Slider";
 import Cart from "@/components/Cart";
 import Menu from "@/components/Menu";
 export default function Home() {
@@ -43,7 +43,8 @@ export default function Home() {
       <Menu />
 
       </main>
-      <Slider/>
+      {/*<Slider/>
+      */}
     </>
   );
 }

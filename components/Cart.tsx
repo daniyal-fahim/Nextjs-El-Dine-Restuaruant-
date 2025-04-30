@@ -1,42 +1,76 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
 type CartItem = {
-  id: number;
+  _id: string; // Use MongoDB _id (string)
   name: string;
   imageSrc: string;
-  price: string;
+  price: string; // Ensure price is a string from the backend
   quantity: number;
 };
 
 export default function Cart() {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { id: 1, name: "Grilled Salmon", imageSrc: "/images/seafood-1.png", price: "22.99", quantity: 1 },
-    { id: 2, name: "Spaghetti Carbonara", imageSrc: "/images/pasta-1.png", price: "18.50", quantity: 2 },
-    { id: 3, name: "Margherita Pizza", imageSrc: "/images/pizza-1.png", price: "15.75", quantity: 1 },
-    { id: 4, name: "Cheeseburger", imageSrc: "/images/burger-1.png", price: "12.99", quantity: 3 },
-  ]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch cart data from backend
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/cart"); // Replace with actual API endpoint
+        if (!res.ok) throw new Error("Failed to fetch cart");
+        const data = await res.json();
+        setCartItems(data);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  // Calculate total price
   const total = cartItems.reduce(
-    (sum, item) => sum + parseFloat(item.price) * item.quantity,
+    (sum, item) => sum + parseFloat(item.price) * item.quantity, // ensure price is parsed as float
     0
   );
 
-  const updateQuantity = (id: number, newQuantity: number) => {
+  const updateQuantity = async (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+
+    try {
+      await fetch(`http://localhost:5000/api/cart/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: newQuantity }),
+      });
+      // Re-fetch cart after updating quantity
+      const res = await fetch("http://localhost:5000/api/cart");
+      const data = await res.json();
+      setCartItems(data);
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+    }
   };
 
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+  const removeItem = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/api/cart/${id}`, {
+        method: "DELETE",
+      });
+      // Re-fetch cart after removal
+      const res = await fetch("http://localhost:5000/api/cart");
+      const data = await res.json();
+      setCartItems(data);
+    } catch (err) {
+      console.error("Error removing item:", err);
+    }
   };
 
   return (
@@ -67,13 +101,15 @@ export default function Cart() {
                 </div>
 
                 <div className="space-y-4">
-                  {cartItems.length === 0 ? (
+                  {loading ? (
+                    <p className="text-center text-gray-500">Loading...</p>
+                  ) : cartItems.length === 0 ? (
                     <div className="text-center py-12">
                       <p className="text-gray-500 text-lg">Your cart is empty</p>
                     </div>
                   ) : (
                     cartItems.map((item) => (
-                      <div key={item.id} className="flex gap-4 items-center border-b pb-4">
+                      <div key={item._id} className="flex gap-4 items-center border-b pb-4">
                         <Image
                           src={item.imageSrc}
                           alt={item.name}
@@ -87,21 +123,21 @@ export default function Cart() {
                           <div className="flex items-center gap-4 mt-2">
                             <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
                               <button
-                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                onClick={() => updateQuantity(item._id, item.quantity - 1)}
                                 className="text-gray-600 hover:text-green-600"
                               >
                                 -
                               </button>
                               <span className="font-medium">{item.quantity}</span>
                               <button
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                onClick={() => updateQuantity(item._id, item.quantity + 1)}
                                 className="text-gray-600 hover:text-green-600"
                               >
                                 +
                               </button>
                             </div>
                             <button
-                              onClick={() => removeItem(item.id)}
+                              onClick={() => removeItem(item._id)}
                               className="text-red-600 hover:text-red-700 flex items-center gap-1"
                             >
                               <TrashIcon className="h-5 w-5" />
@@ -114,7 +150,7 @@ export default function Cart() {
                   )}
                 </div>
 
-                {cartItems.length > 0 && (
+                {cartItems.length > 0 && !loading && (
                   <div className="mt-6 pt-4 border-t">
                     <div className="flex justify-between items-center mb-6">
                       <span className="text-lg font-bold text-gray-800">Total:</span>

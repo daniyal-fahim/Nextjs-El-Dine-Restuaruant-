@@ -13,7 +13,18 @@ interface ProductProps {
   description?: string;
   onClose: () => void; // Close function
 }
-
+export interface ProductInfo {
+  name: string;
+  imageSrc: string;
+  price: string;
+  label?: string;
+  ingredients?: string[];
+  rating?: number;
+  calories?: number;
+  reviews?: number;
+  category?: string;
+  description?: string;
+}
 export default function ProductInfo({ name, imageSrc, price, label, ingredients, rating, calories, reviews, category, description, onClose }: ProductProps) {
   return (
     <div className="pt-56 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
