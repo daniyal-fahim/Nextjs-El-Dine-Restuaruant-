@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import ProductInfo from "@/components/Info";
 import AddProduct from "@/components/AddProduct";
+import Feedback from "@/components/Feedback";
 import axios from "axios";
-import { CheckCircleIcon, PlusCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, PlusCircleIcon, TrashIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 
 // Define types
 interface Product {
@@ -35,6 +36,7 @@ export default function Manager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isProductInfoOpen, setIsProductInfoOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // New state for feedback visibility
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,6 +74,11 @@ export default function Manager() {
   // Toggle Add Product form
   const toggleAddProduct = () => {
     setIsAddProductOpen(!isAddProductOpen);
+  };
+
+  // Toggle Feedback section
+  const toggleFeedback = () => {
+    setIsFeedbackOpen(!isFeedbackOpen);
   };
 
   // Approve order
@@ -126,14 +133,21 @@ export default function Manager() {
           <h1 className="text-3xl font-bold text-green-900">Manager Dashboard</h1>
         </div>
 
-        {/* Add Product Button */}
-        <div className="flex justify-end mb-6">
+        {/* Buttons for Add Product and Feedback */}
+        <div className="flex justify-end gap-4 mb-6">
           <button
             onClick={toggleAddProduct}
             className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
           >
             <PlusCircleIcon className="h-6 w-6" />
             <span>{isAddProductOpen ? "Close Form" : "Add New Product"}</span>
+          </button>
+          <button
+            onClick={toggleFeedback}
+            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+          >
+            <ChatBubbleLeftIcon className="h-6 w-6" />
+            <span>{isFeedbackOpen ? "Close Feedback" : "View Feedback"}</span>
           </button>
         </div>
 
@@ -202,6 +216,14 @@ export default function Manager() {
             </div>
           )}
         </section>
+
+        {/* Feedback Section */}
+        {isFeedbackOpen && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-green-900 mb-4">Customer Feedback</h2>
+            <Feedback />
+          </section>
+        )}
 
         {/* Products Section */}
         <section>
