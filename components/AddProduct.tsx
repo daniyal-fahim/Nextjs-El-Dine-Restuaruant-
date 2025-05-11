@@ -29,7 +29,7 @@ const AddProduct: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:5000/api/products", product);
+            const response = await axios.post("http://localhost:5000/api/menu/add", product);
             alert("✅ Product added successfully!");
             console.log(response.data);
             setProduct({

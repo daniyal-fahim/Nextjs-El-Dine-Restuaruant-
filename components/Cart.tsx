@@ -5,10 +5,10 @@ import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
 type CartItem = {
-  _id: string; // Use MongoDB _id (string)
+  _id: string;
   name: string;
   imageSrc: string;
-  price: string; // Ensure price is a string from the backend
+  price: string;
   quantity: number;
 };
 
@@ -16,12 +16,12 @@ export default function Cart() {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  // Fetch cart data from backend
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/cart"); // Replace with actual API endpoint
+        const res = await fetch("http://localhost:5000/api/cart");
         if (!res.ok) throw new Error("Failed to fetch cart");
         const data = await res.json();
         setCartItems(data);
@@ -35,22 +35,20 @@ export default function Cart() {
     fetchCart();
   }, []);
 
-  // Calculate total price
   const total = cartItems.reduce(
-    (sum, item) => sum + parseFloat(item.price) * item.quantity, // ensure price is parsed as float
-    0
-  );
+  (sum, item) => sum + (isNaN(parseFloat(item.price)) ? 0 : parseFloat(item.price)) * item.quantity,
+  0
+);
+
 
   const updateQuantity = async (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-
     try {
       await fetch(`http://localhost:5000/api/cart/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity: newQuantity }),
       });
-      // Re-fetch cart after updating quantity
       const res = await fetch("http://localhost:5000/api/cart");
       const data = await res.json();
       setCartItems(data);
@@ -64,12 +62,46 @@ export default function Cart() {
       await fetch(`http://localhost:5000/api/cart/${id}`, {
         method: "DELETE",
       });
-      // Re-fetch cart after removal
       const res = await fetch("http://localhost:5000/api/cart");
       const data = await res.json();
       setCartItems(data);
     } catch (err) {
       console.error("Error removing item:", err);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) return;
+
+    setIsPlacingOrder(true);
+    try {
+      const orderPayload = {
+        customerName: "Anonymous", // Or fetch from user context/session
+        items: cartItems.map((item) => ({
+          menuItemId: item._id,
+          name: item.name,
+          price: parseFloat(item.price),
+          quantity: item.quantity,
+        })),
+        total: total,
+      };
+
+      const res = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
+
+      if (!res.ok) throw new Error("Failed to place order");
+
+      alert("Order placed successfully!");
+      setCartItems([]); // Clear cart on success
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Checkout error:", err);
+      alert("Something went wrong while placing the order.");
+    } finally {
+      setIsPlacingOrder(false);
     }
   };
 
@@ -158,8 +190,12 @@ export default function Cart() {
                     </div>
 
                     <div className="space-y-3">
-                      <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition-colors font-semibold">
-                        Checkout Now
+                      <button
+                        onClick={handleCheckout}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition-colors font-semibold"
+                        disabled={isPlacingOrder}
+                      >
+                        {isPlacingOrder ? "Placing Order..." : "Checkout Now"}
                       </button>
                       <button
                         onClick={() => setIsOpen(false)}
