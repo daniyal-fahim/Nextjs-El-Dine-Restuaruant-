@@ -66,7 +66,7 @@ const Menu = () => {
         <ProductInfo
           name={selected.name}
           imageSrc={selected.image}
-          price={selected.price.toFixed(2)}
+          price={selected.price} 
           category={selected.category}
           description={selected.description}
           onClose={handleClose}
@@ -92,7 +92,7 @@ const Menu = () => {
                 key={item._id}
                 name={item.name}
                 imageSrc={item.image}
-                price={item.price.toFixed(2)}
+                price={item.price}  
                 label="Popular"
                 onOpen={() => handleOpen(item)}
               />

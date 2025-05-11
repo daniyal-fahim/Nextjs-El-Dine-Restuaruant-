@@ -1,272 +1,178 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import ProductInfo from "@/components/Info";
-import AddProduct from "@/components/AddProduct";
-import Feedback from "@/components/Feedback";
-import axios from "axios";
-import { CheckCircleIcon, PlusCircleIcon, TrashIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-// Define types
-interface Product {
+type Product = {
   _id: string;
   name: string;
-  imageSrc: string;
-  price: string;
-  category: string;
-  description?: string;
-  label?: string;
-  rating?: number;
-  reviews?: number;
-  calories?: number;
-  ingredients?: string[];
-}
+};
 
-interface Order {
-  id: string;
-  products: { id: string; name: string; quantity: number }[];
-  address: string;
-  total: number;
+type Feedback = {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: string;
+};
+
+type Order = {
+  _id: string;
+  customerName: string;
+  totalAmount: number;
   status: string;
-}
+  createdAt: string;
+};
 
-export default function Manager() {
-  const [orders, setOrders] = useState<Order[]>([]);
+export default function ManagerPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isProductInfoOpen, setIsProductInfoOpen] = useState(false);
-  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // New state for feedback visibility
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
-  // Fetch orders and products from backend
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch orders
-        const ordersRes = await axios.get("http://localhost:5000/api/orders");
-        setOrders(ordersRes.data);
+        const [feedbackRes, productRes, orderRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/feedback/all'),
+          axios.get('http://localhost:5000/api/menu'),
+          axios.get('http://localhost:5000/api/orders/history'), // Fetch all orders
+        ]);
+        setFeedbacks(feedbackRes.data);
+        setProducts(productRes.data);
 
-        // Fetch products (menu items)
-        const productsRes = await axios.get("http://localhost:5000/api/menu");
-        setProducts(productsRes.data);
-      } catch (err) {
-        console.error("Error fetching data:", err);
+        // Filter and set only pending orders
+       // const pendingOrders = orderRes.data.filter((order: Order) => order.status === 'pending');
+        setOrders(orderRes.data);
+      } catch (err: any) {
+        console.error('Error fetching data:', err);
+        if (err.response) {
+          setError(`Error ${err.response.status}: ${err.response.data.message || err.response.statusText}`);
+        } else {
+          setError('Network or server error, please try again later.');
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
-  // Handle product info modal
-  const handleOpenProductInfo = (product: Product) => {
-    setSelectedProduct(product);
-    setIsProductInfoOpen(true);
-  };
-
-  const handleCloseProductInfo = () => {
-    setIsProductInfoOpen(false);
-    setSelectedProduct(null);
-  };
-
-  // Toggle Add Product form
-  const toggleAddProduct = () => {
-    setIsAddProductOpen(!isAddProductOpen);
-  };
-
-  // Toggle Feedback section
-  const toggleFeedback = () => {
-    setIsFeedbackOpen(!isFeedbackOpen);
-  };
-
-  // Approve order
+  // Function to handle approving an order
   const approveOrder = async (orderId: string) => {
     try {
-      await axios.put(`http://localhost:5000/api/orders/${orderId}`, { status: "In Transit" });
-      const ordersRes = await axios.get("http://localhost:5000/api/orders");
-      setOrders(ordersRes.data);
-      alert("✅ Order approved!");
+      const res = await axios.patch(`http://localhost:5000/api/orders/${orderId}/approve`);
+      if (res.status === 200) {
+        // Remove the approved order from the list
+        setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+      }
     } catch (err) {
-      console.error("Error approving order:", err);
-      alert("❌ Failed to approve order.");
+      console.error('Error approving order:', err);
     }
   };
 
-  // Delete product
-  const deleteProduct = async (productId: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+  // Function to handle canceling an order
+  const cancelOrder = async (orderId: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/products/${productId}`);
-      setProducts(products.filter((p) => p._id !== productId));
-      alert("✅ Product deleted successfully!");
+      const res = await axios.patch(`http://localhost:5000/api/orders/${orderId}/cancel`);
+      if (res.status === 200) {
+        // Remove the canceled order from the list
+        setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+      }
     } catch (err) {
-      console.error("Error deleting product:", err);
-      alert("❌ Failed to delete product.");
+      console.error('Error canceling order:', err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-green-50">
-      <Header />
+    <div className="min-h-screen bg-gray-50 p-6">
+      <h1 className="text-3xl font-bold text-green-900 mb-6">Manager Dashboard</h1>
 
-      {/* Product Info Modal */}
-      {isProductInfoOpen && selectedProduct && (
-        <ProductInfo
-          name={selectedProduct.name}
-          imageSrc={selectedProduct.imageSrc}
-          price={selectedProduct.price}
-          category={selectedProduct.category}
-          description={selectedProduct.description || "No description available"}
-          label={selectedProduct.label || "Standard"}
-          rating={selectedProduct.rating || 4.5}
-          reviews={selectedProduct.reviews || 100}
-          calories={selectedProduct.calories || 500}
-          ingredients={selectedProduct.ingredients || []}
-          onClose={handleCloseProductInfo}
-        />
-      )}
-
-      <main className="pt-20 p-6 max-w-6xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <h1 className="text-3xl font-bold text-green-900">Manager Dashboard</h1>
-        </div>
-
-        {/* Buttons for Add Product and Feedback */}
-        <div className="flex justify-end gap-4 mb-6">
-          <button
-            onClick={toggleAddProduct}
-            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-          >
-            <PlusCircleIcon className="h-6 w-6" />
-            <span>{isAddProductOpen ? "Close Form" : "Add New Product"}</span>
-          </button>
-          <button
-            onClick={toggleFeedback}
-            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-          >
-            <ChatBubbleLeftIcon className="h-6 w-6" />
-            <span>{isFeedbackOpen ? "Close Feedback" : "View Feedback"}</span>
-          </button>
-        </div>
-
-        {/* Add Product Form */}
-        {isAddProductOpen && (
-          <div className="mb-8">
-            <AddProduct />
-          </div>
-        )}
-
-        {/* Orders Section */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-green-900 mb-4">Pending Orders</h2>
-          {loading ? (
-            <p className="text-center text-gray-500">Loading...</p>
-          ) : orders.length === 0 ? (
-            <p className="text-center text-gray-500">No pending orders</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {orders
-                .filter((order) => order.status === "Pending")
-                .map((order) => (
+      {loading ? (
+        <p className="text-gray-700">Loading data...</p>
+      ) : error ? (
+        <p className="text-red-600">{error}</p>
+      ) : (
+        <main className="space-y-10">
+          {/* Feedback Section */}
+          <section>
+            <h2 className="text-2xl font-semibold text-yellow-700 mb-4">Customer Feedback</h2>
+            {feedbacks.length === 0 ? (
+              <p className="text-gray-600">No feedback available.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {feedbacks.map((feedback) => (
                   <div
-                    key={order.id}
-                    className="bg-white rounded-xl shadow-md p-6 transition-all hover:shadow-lg"
+                    key={feedback._id}
+                    className="bg-white rounded-xl p-4 border border-yellow-300 hover:shadow-lg transition"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm ${
-                              order.status === "Pending"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-green-100 text-green-800"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                          <span className="text-gray-500 text-sm">Order #{order.id}</span>
-                        </div>
-                        <h2 className="text-lg font-semibold text-green-900 mb-2">
-                          Delivery Address
-                        </h2>
-                        <p className="text-gray-600">{order.address}</p>
-                      </div>
-                    </div>
-                    <div className="border-t pt-4">
-                      <div className="mb-4">
-                        <h3 className="text-green-900 font-semibold text-lg">
-                          {order.products.length} Items • ${order.total.toFixed(2)}
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Includes {order.products.map((p) => p.name).join(", ")}
-                        </p>
-                      </div>
+                    <p className="text-green-900 font-semibold">Name: {feedback.name}</p>
+                    <p className="text-blue-800">Email: {feedback.email}</p>
+                    <p className="text-gray-700 mt-1">Message: {feedback.message}</p>
+                    <p className="text-sm text-gray-500 mt-2">Date: {new Date(feedback.createdAt).toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Product Section */}
+          <section>
+            <h2 className="text-xl font-semibold text-green-800 mb-2">
+              Menu Items Currently Available:
+            </h2>
+            {products.length === 0 ? (
+              <p className="text-gray-600">No products available.</p>
+            ) : (
+              <ol className="list-decimal pl-6 text-gray-700">
+                {products.map((product) => (
+                  <li key={product._id}>{product.name}</li>
+                ))}
+              </ol>
+            )}
+          </section>
+
+          {/* Orders Section */}
+          <section>
+            <h2 className="text-2xl font-semibold text-purple-700 mb-4">Pending Orders</h2>
+            {orders.length === 0 ? (
+              <p className="text-gray-600">No pending orders.</p>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="bg-white rounded-xl p-4 border border-purple-300 hover:shadow-lg transition"
+                  >
+                    <p className="text-lg font-bold text-gray-800">Customer: {order.customerName}</p>
+                    <p className="text-gray-700">Total: ${order.totalAmount}</p>
+                    <p className="text-gray-700">Status: {order.status}</p>
+                    <p className="text-gray-600 text-sm">Ordered on: {new Date(order.createdAt).toLocaleString()}</p>
+
+                    {/* Approve/Cancel buttons */}
+                    <div className="mt-4 flex space-x-4">
                       <button
-                        onClick={() => approveOrder(order.id)}
-                        className="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                        className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600"
+                        onClick={() => approveOrder(order._id)}
                       >
-                        <CheckCircleIcon className="h-6 w-6" />
-                        <span className="font-semibold">Approve Order</span>
+                        Approve
+                      </button>
+                      <button
+                        className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600"
+                        onClick={() => cancelOrder(order._id)}
+                      >
+                        Cancel
                       </button>
                     </div>
                   </div>
                 ))}
-            </div>
-          )}
-        </section>
-
-        {/* Feedback Section */}
-        {isFeedbackOpen && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-green-900 mb-4">Customer Feedback</h2>
-            <Feedback />
+              </div>
+            )}
           </section>
-        )}
-
-        {/* Products Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-green-900 mb-4">Menu Items</h2>
-          {loading ? (
-            <p className="text-center text-gray-500">Loading...</p>
-          ) : products.length === 0 ? (
-            <p className="text-center text-gray-500">No products available</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {products.map((product) => (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-xl shadow-md p-4 flex flex-col items-center"
-                >
-                  <img
-                    src={product.imageSrc}
-                    alt={product.name}
-                    className="w-full h-40 object-cover rounded-lg mb-2"
-                  />
-                  <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
-                  <p className="text-gray-600">${product.price}</p>
-                  <p className="text-gray-600 text-sm">{product.category}</p>
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => handleOpenProductInfo(product)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                    >
-                      View Details
-                    </button>
-                    <button
-                      onClick={() => deleteProduct(product._id)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
+        </main>
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 interface ProductProps {
   name: string;
   imageSrc: string;
-  price: string;
+  price: number;
   label?: string;
   ingredients?: string[];
   rating?: number;
@@ -16,7 +16,7 @@ interface ProductProps {
 export interface ProductInfo {
   name: string;
   imageSrc: string;
-  price: string;
+  price: number;
   label?: string;
   ingredients?: string[];
   rating?: number;

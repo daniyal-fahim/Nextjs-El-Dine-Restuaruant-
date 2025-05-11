@@ -6,7 +6,7 @@ import { ProductInfo } from "./Info";
 export interface ProductProps {
   name: string;
   imageSrc: string;
-  price: string;
+  price: number;
   label?: string;
   onOpen: (productData: ProductInfo) => void;
 }

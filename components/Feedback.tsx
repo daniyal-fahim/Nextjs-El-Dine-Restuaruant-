@@ -6,10 +6,9 @@ import axios from "axios";
 // Define types
 interface Feedback {
   _id: string;
-  userId: string;
-  menuItemId: string;
-  rating: number;
-  comment: string;
+  name: string;
+  email: string;
+  message: string;
   createdAt: string;
 }
 
@@ -18,10 +17,9 @@ export default function Feedback() {
   const [loading, setLoading] = useState(true);
 
   // Form states
-  const [userId, setUserId] = useState("");
-  const [menuItemId, setMenuItemId] = useState("");
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   // Fetch existing feedbacks
   useEffect(() => {
@@ -43,10 +41,9 @@ export default function Feedback() {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:5000/api/feedback", {
-        userId,
-        menuItemId,
-        rating,
-        comment,
+        name,
+        email,
+        message,
       });
       alert("Feedback submitted!");
 
@@ -54,10 +51,9 @@ export default function Feedback() {
       setFeedbacks((prev) => [...prev, res.data.feedback]);
 
       // Clear form
-      setUserId("");
-      setMenuItemId("");
-      setRating(5);
-      setComment("");
+      setName("");
+      setEmail("");
+      setMessage("");
     } catch (err) {
       console.error("Error submitting feedback:", err);
       alert("Failed to submit feedback.");
@@ -74,34 +70,26 @@ export default function Feedback() {
         <h2 className="text-xl font-semibold">Submit Feedback</h2>
         <input
           type="text"
-          placeholder="User ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="w-full p-2 border rounded"
           required
         />
         <input
-          type="text"
-          placeholder="Menu Item ID"
-          value={menuItemId}
-          onChange={(e) => setMenuItemId(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="number"
-          min="1"
-          max="5"
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
+          type="email"
+          placeholder="Your Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 border rounded"
           required
         />
         <textarea
-          placeholder="Comment"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          placeholder="Your Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           className="w-full p-2 border rounded"
+          required
         />
         <button
           type="submit"
@@ -127,12 +115,9 @@ export default function Feedback() {
                 <p className="text-sm text-gray-500">
                   {new Date(feedback.createdAt).toLocaleString()}
                 </p>
-                <p className="text-green-900 font-semibold">
-                  Rating: {feedback.rating} / 5
-                </p>
-                <p className="text-gray-700">{feedback.comment}</p>
+                <p className="text-gray-700">{feedback.message}</p>
                 <p className="text-xs text-gray-400 mt-2">
-                  User: {feedback.userId} | MenuItem: {feedback.menuItemId}
+                  {feedback.name} | {feedback.email}
                 </p>
               </div>
             ))}
