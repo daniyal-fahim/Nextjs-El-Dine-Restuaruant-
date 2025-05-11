@@ -12,45 +12,21 @@ interface MenuItem {
 }
 
 interface OrderItem {
-  menuItemId: MenuItem;
+  menuItemId: MenuItem;  // Now `menuItemId` is of type `MenuItem` instead of just an ID
   quantity: number;
 }
 
 interface Order {
   _id: string;
   userId?: { name: string; email: string };
-  items: OrderItem[];
+  items: OrderItem[];  // `items` is an array of `OrderItem` which contains `MenuItem` objects
   total: number;
   status: string;
   createdAt: string;
 }
 
-const sampleOrders: Order[] = [
-  {
-    _id: '1234567890abcdef12345678',
-    userId: { name: 'John Doe', email: 'john@example.com' },
-    items: [
-      { menuItemId: { _id: 'item1', name: 'Burger', price: 9.99 }, quantity: 2 },
-      { menuItemId: { _id: 'item2', name: 'Fries', price: 3.99 }, quantity: 1 },
-    ],
-    total: 23.97,
-    status: 'Pending',
-    createdAt: new Date('2025-05-13').toISOString(),
-  },
-  {
-    _id: 'abcdef1234567890abcdef12',
-    userId: { name: 'Jane Smith', email: 'jane@example.com' },
-    items: [
-      { menuItemId: { _id: 'item3', name: 'Pizza', price: 12.99 }, quantity: 1 },
-    ],
-    total: 12.99,
-    status: 'Delivered',
-    createdAt: new Date('2025-05-10').toISOString(),
-  },
-];
-
 const OrderHistory: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>(sampleOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +34,7 @@ const OrderHistory: React.FC = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get<Order[]>('/api/orders', {
+        const response = await axios.get<Order[]>('http://localhost:5000/api/orders/history', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setOrders(response.data);
@@ -108,7 +84,7 @@ const OrderHistory: React.FC = () => {
             {orders.map((order) => (
               <div
                 key={order._id}
-                className="bg-white rounded-lg shadow-md p-6 border border-grayALLELLE-200"
+                className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
               >
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
                   Order #{order._id.slice(-6)}
@@ -123,19 +99,31 @@ const OrderHistory: React.FC = () => {
                     </p>
                   </div>
                 )}
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium text-gray-700">Items</h3>
-                  <ul className="list-disc pl-5">
-                    {order.items.map((item, index) => (
-                      <li key={index} className="text-gray-600">
-                        {item.menuItemId.name} - ${item.menuItemId.price.toFixed(2)} x{' '}
-                        {item.quantity}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+               <div className="mb-4">
+  <h3 className="text-lg font-medium text-gray-700">Items</h3>
+  <ul className="list-disc pl-5">
+    {order.items.map((item, index) => {
+      const name = item.menuItemId?.name || item.name;
+      const price = item.menuItemId?.price ?? item.price;
+
+      return (
+        <li key={index} className="text-gray-600">
+          {name && price != null ? (
+            <>
+              {name} - ${price} x {item.quantity}
+            </>
+          ) : (
+            <span>Item details not available</span>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</div>
+
+
                 <p className="text-gray-600 mb-2">
-                  <span className="font-medium">Total:</span> ${order.total.toFixed(2)}
+                  <span className="font-medium">Total:</span> ${order.total}
                 </p>
                 <p className="text-gray-600 mb-2">
                   <span className="font-medium">Status:</span>{' '}
