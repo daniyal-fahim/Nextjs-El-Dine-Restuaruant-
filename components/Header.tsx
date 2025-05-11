@@ -21,7 +21,7 @@ export default function Header() {
         <nav className="hidden md:flex space-x-8 items-center">
           <div className="flex items-center gap-8">
             <Link href="/" className="text-gray-700 hover:text-red-500">Home</Link>
-            <Link href="/" className="text-gray-700 hover:text-red-500">Menu</Link>
+            <Link href="/OrderHistory" className="text-gray-700 hover:text-red-500">Order Histroy</Link>
             <Link href="/Test" className="text-gray-700 hover:text-red-500">About</Link>
             <Link href="/Contact" className="text-gray-700 hover:text-red-500">Contact</Link>
             
@@ -52,12 +52,7 @@ export default function Header() {
               </div>
             )}
             
-            <Link 
-              href="/reservation" 
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            >
-              Book a Table
-            </Link>
+        
           </div>
         </nav>
 
@@ -83,7 +78,7 @@ export default function Header() {
         {/* Menu Items */}
         <nav className="flex flex-col items-center mt-16 space-y-6 p-4">
           <Link href="/" className="text-lg text-gray-700 hover:text-red-500 w-full text-center" onClick={() => setIsOpen(false)}>Home</Link>
-          <Link href="/" className="text-lg text-gray-700 hover:text-red-500 w-full text-center" onClick={() => setIsOpen(false)}>Menu</Link>
+          <Link href="/OrderHistory" className="text-lg text-gray-700 hover:text-red-500 w-full text-center" onClick={() => setIsOpen(false)}>OrderHistory</Link>
           <Link href="/Test" className="text-lg text-gray-700 hover:text-red-500 w-full text-center" onClick={() => setIsOpen(false)}>About</Link>
           <Link href="/Contact" className="text-lg text-gray-700 hover:text-red-500 w-full text-center" onClick={() => setIsOpen(false)}>Contact</Link>
           
@@ -119,13 +114,7 @@ export default function Header() {
             </div>
           )}
           
-          <Link 
-            href="/reservation" 
-            className="w-full text-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            onClick={() => setIsOpen(false)}
-          >
-            Book a Table
-          </Link>
+        
         </nav>
       </div>
     </header>
